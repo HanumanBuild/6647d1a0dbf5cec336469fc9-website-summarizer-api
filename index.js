@@ -2,12 +2,6 @@ const express = require('express');
 const app = express();
 const PORT = 3000;
 
-// Import MongoDB connection
-const connectDB = require('./db');
-
-// Connect to MongoDB
-connectDB();
-
 app.use(express.json());
 
 app.get('/', (req, res) => {
