@@ -25,6 +25,9 @@ app.post('/summarize', async (req, res) => {
     }
 
     try {
+        // Validate URL
+        new URL(url);
+
         // Fetch website content
         const response = await axios.get(url);
         const html = response.data;
@@ -45,7 +48,20 @@ app.post('/summarize', async (req, res) => {
         res.json({ summary });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'An error occurred while processing the request' });
+
+        if (error instanceof TypeError) {
+            // Invalid URL
+            res.status(400).json({ error: 'Invalid URL' });
+        } else if (error.response) {
+            // Network error or non-200 response
+            res.status(500).json({ error: 'Failed to fetch website content' });
+        } else if (error instanceof OpenAI.APIError) {
+            // OpenAI API error
+            res.status(500).json({ error: 'Failed to summarize content using OpenAI' });
+        } else {
+            // General error
+            res.status(500).json({ error: 'An error occurred while processing the request' });
+        }
     }
 });
 
